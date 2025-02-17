@@ -1,0 +1,21 @@
+services:
+  windows:
+    image: dockurr/windows
+    container_name: windows
+    environment:
+      VERSION: "https://github.com/win10lite/download/releases/download/download/Windows.10.Lite.Edition.19H2.x64.iso"
+      USERNAME: "Zuzzyyuu"
+      PASSWORD: "VlqL123"
+      RAM_SIZE: "4G"
+      CPU_CORES: "4"
+      DISK_SIZE: "500G"
+    devices:
+      - /dev/kvm
+      - /dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 8006:8006
+      - 3389:3389/tcp
+      - 3389:3389/udp
+    stop_grace_period: 2m
