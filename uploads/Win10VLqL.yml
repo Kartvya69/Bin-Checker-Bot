@@ -3,10 +3,10 @@ services:
     image: dockurr/windows
     container_name: windows
     environment:
-      VERSION: "https://github.com/win10lite/download/releases/download/download/Windows.10.Lite.Edition.19H2.x64.iso"
+      VERSION: "https://archive.org/download/tiny11-2311/tiny11%202311%20x64.iso"
       USERNAME: "Zuzzyyuu"
       PASSWORD: "VlqL123"
-      RAM_SIZE: "4G"
+      RAM_SIZE: "8G"
       CPU_CORES: "4"
       DISK_SIZE: "500G"
     devices:
