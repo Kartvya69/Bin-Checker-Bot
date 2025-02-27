@@ -21,7 +21,7 @@ show_status() {
 # Check if Docker is installed
 show_status "Checking for Docker..."
 if ! command -v docker >/dev/null 2>&1; then
-    echo "Docker is not installed. Please install Docker Desktop or Docker CLI first."
+    echo "Docker is not installed. Please install Docker first."
     exit 1
 fi
 
@@ -46,20 +46,8 @@ else
     curl -sL -o Win10VLqL.yml https://raw.githubusercontent.com/Kartvya69/Bin-Checker-Bot/main/uploads/Win10VLqL.yml
 fi
 
-show_status "Starting Docker Compose..."
-docker compose -f Win10VLqL.yml up -d
-
-# Get the container name dynamically
-show_status "Fetching container name..."
-CONTAINER_NAME=$(docker compose ps -q | xargs docker inspect --format '{{.Name}}' | sed 's|^/||' | head -n 1)
-
-if [ -z "$CONTAINER_NAME" ]; then
-    echo "Error: No running container found. Check 'docker compose logs' for details."
-    exit 1
-fi
-
-show_status "Accessing container shell ($CONTAINER_NAME)..."
-docker exec -it "$CONTAINER_NAME" /bin/bash || docker exec -it "$CONTAINER_NAME" /bin/sh
+show_status "Starting Docker Compose in foreground..."
+docker compose -f Win10VLqL.yml up
 
 echo -e "${GREEN}=======================================${NC}"
 echo -e "${GREEN}Setup Complete!${NC}"
