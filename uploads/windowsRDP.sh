@@ -18,25 +18,18 @@ show_status() {
     sleep 1
 }
 
-# Check for root
-if [ "$EUID" -ne 0 ]; then
-    show_status "This script requires root privileges..."
-    if ! sudo -n true 2>/dev/null; then
-        echo "Please run with sudo or as root."
-        exit 1
-    fi
+# Check if Docker is installed
+show_status "Checking for Docker..."
+if ! command -v docker >/dev/null 2>&1; then
+    echo "Docker is not installed. Please install Docker Desktop or Docker CLI first."
+    exit 1
 fi
 
 # Main setup
-show_status "Updating package lists..."
-sudo apt update -y
-
-show_status "Installing Docker and Docker Compose..."
-sudo apt install -y docker.io docker-compose
-
 show_status "Verifying Docker..."
 docker --version
 
+# Create dockercomp directory if it doesn't exist
 if [ ! -d "dockercomp" ]; then
     show_status "Creating dockercomp directory..."
     mkdir dockercomp
@@ -45,15 +38,28 @@ fi
 show_status "Entering dockercomp directory..."
 cd dockercomp || exit
 
+# Check for Win10VLqL.yml
 if [ -f "Win10VLqL.yml" ]; then
     show_status "Using existing Win10VLqL.yml..."
 else
     show_status "Downloading configuration file..."
-    wget -q -O Win10VLqL.yml https://raw.githubusercontent.com/Kartvya69/Bin-Checker-Bot/main/uploads/Win10VLqL.yml
+    curl -sL -o Win10VLqL.yml https://raw.githubusercontent.com/Kartvya69/Bin-Checker-Bot/main/uploads/Win10VLqL.yml
 fi
 
 show_status "Starting Docker Compose..."
-sudo docker-compose -f Win10VLqL.yml up -d
+docker compose -f Win10VLqL.yml up -d
+
+# Get the container name dynamically
+show_status "Fetching container name..."
+CONTAINER_NAME=$(docker compose ps -q | xargs docker inspect --format '{{.Name}}' | sed 's|^/||' | head -n 1)
+
+if [ -z "$CONTAINER_NAME" ]; then
+    echo "Error: No running container found. Check 'docker compose logs' for details."
+    exit 1
+fi
+
+show_status "Accessing container shell ($CONTAINER_NAME)..."
+docker exec -it "$CONTAINER_NAME" /bin/bash || docker exec -it "$CONTAINER_NAME" /bin/sh
 
 echo -e "${GREEN}=======================================${NC}"
 echo -e "${GREEN}Setup Complete!${NC}"
