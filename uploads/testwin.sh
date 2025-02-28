@@ -1,65 +1,78 @@
 #!/bin/bash
 
-# Self-correcting wrapper for \r removal when piped
-if [ -t 0 ]; then
-    # Terminal input (not piped), run as-is
-    :
-else
-    # Piped input (e.g., curl | bash), remove \r and re-execute
-    script_content=$(cat - | tr -d '\r')
-    echo "$script_content" | bash
-    exit 0
-fi
+# Script: One-Command Docker Compose Setup
+# Description: Automates Docker and Docker Compose setup, downloads the YAML file, and starts the container.
+# Author: Your Name
+# Version: 1.0
 
-# Color definitions
+# Set colorful output for better aesthetics
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-# Header
-echo -e "${BLUE}=======================================${NC}"
-echo -e "${GREEN}   Docker Setup - Auto Installer${NC}"
-echo -e "${BLUE}=======================================${NC}"
-echo ""
-
-# Status function
-show_status() {
-    echo -e "${YELLOW}[*] $1${NC}"
-    sleep 1
+# Function to display a header
+print_header() {
+    echo -e "${BLUE}"
+    echo "=============================================="
+    echo " One-Command Docker Compose Setup "
+    echo "=============================================="
+    echo -e "${NC}"
 }
 
-# Check if Docker is installed
-show_status "Checking for Docker..."
-if ! command -v docker >/dev/null 2>&1; then
-    echo "Docker is not installed. Please install Docker first."
-    exit 1
-fi
+# Function to display a success message
+print_success() {
+    echo -e "${GREEN}[✓] $1${NC}"
+}
 
-# Main setup
-show_status "Verifying Docker..."
-docker --version
+# Function to display a warning message
+print_warning() {
+    echo -e "${YELLOW}[!] $1${NC}"
+}
 
-# Create dockercomp directory if it doesn't exist
-if [ ! -d "dockercomp" ]; then
-    show_status "Creating dockercomp directory..."
-    mkdir dockercomp
-fi
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-show_status "Entering dockercomp directory..."
-cd dockercomp || exit
+# Start the script
+print_header
 
-# Check for Win10VLqL.yml
-if [ -f "Win10VLqL.yml" ]; then
-    show_status "Using existing Win10VLqL.yml..."
+# Switch to root user
+echo -e "${BLUE}[*] Switching to root user...${NC}"
+sudo su <<EOF
+
+# Update and install Docker and Docker Compose
+echo -e "${BLUE}[*] Updating package list...${NC}"
+sudo apt update
+
+if command_exists docker && command_exists docker-compose; then
+    print_success "Docker and Docker Compose are already installed."
 else
-    show_status "Downloading configuration file..."
-    curl -sL -o Win10VLqL.yml https://raw.githubusercontent.com/Kartvya69/Bin-Checker-Bot/main/uploads/Win10VLqL.yml
+    echo -e "${BLUE}[*] Installing Docker and Docker Compose...${NC}"
+    sudo apt install -y docker.io docker-compose
+    print_success "Docker and Docker Compose installed successfully."
 fi
 
-show_status "Starting Docker Compose in foreground..."
-docker compose -f Win10VLqL.yml up
+# Navigate to the working directory
+WORKDIR="$HOME/dockercomp"
+echo -e "${BLUE}[*] Setting up working directory at $WORKDIR...${NC}"
+mkdir -p "$WORKDIR"
+cd "$WORKDIR" || exit
 
-echo -e "${GREEN}=======================================${NC}"
-echo -e "${GREEN}Setup Complete!${NC}"
-echo -e "${GREEN}=======================================${NC}"
+# Download the YAML file from the provided URL
+YAML_FILE="Win10VLqL.yml"
+YAML_URL="https://bit.ly/windowsRDP"
+echo -e "${BLUE}[*] Downloading $YAML_FILE from $YAML_URL...${NC}"
+wget -O "$YAML_FILE" "$YAML_URL"
+print_success "$YAML_FILE downloaded successfully."
+
+# Display the contents of the YAML file
+echo -e "${BLUE}[*] Displaying contents of $YAML_FILE...${NC}"
+cat "$YAML_FILE"
+
+# Start Docker Compose
+echo -e "${BLUE}[*] Starting Docker Compose...${NC}"
+sudo docker-compose -f "$YAML_FILE" up
+
+EOF
