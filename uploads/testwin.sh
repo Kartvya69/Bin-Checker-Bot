@@ -1,13 +1,9 @@
 #!/bin/bash
-# Fix line endings
-sed -i 's/\r$//' "$0"
 
-# Script: One-Command Docker Compose Setup
-# Description: Automates Docker and Docker Compose setup, downloads the YAML file, and starts the container.
+# Script: One-Command Docker Compose Setup                      # Description: Automates Docker and Docker Compose setup, downloads the YAML file, and starts the container.
 # Author: Your Name
 # Version: 1.0
-
-# Set colorful output for better aesthetics
+                                                                # Set colorful output for better aesthetics
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
