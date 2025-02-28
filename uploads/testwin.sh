@@ -1,5 +1,6 @@
 #!/bin/bash
 
+sed -i 's/\r$//' "$0"
 # Script: One-Command Docker Compose Setup
 # Description: Automates Docker and Docker Compose setup, downloads the YAML file, and starts the container.
 # Author: Your Name
